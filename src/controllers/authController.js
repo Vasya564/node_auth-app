@@ -12,7 +12,6 @@ class AuthController {
       const errors = validationResult(req);
       const { name, email, password } = req.body;
 
-      // Check if user already exists
       const existingUser = UserModel.findByEmail(email);
 
       if (existingUser) {
@@ -28,22 +27,18 @@ class AuthController {
         });
       }
 
-      // Hash password
       const hashedPassword = await bcrypt.hash(password, 12);
 
-      // Create user
       const newUser = UserModel.createUser({
         name,
         email,
         password: hashedPassword,
       });
 
-      // Create activation token
       const activationToken = uuidv4();
 
       UserModel.setActivationToken(activationToken, newUser.id);
 
-      // Send activation email
       const activationUrl = `${process.env.BASE_URL || 'http://localhost:3000'}/activate/${activationToken}`;
 
       await EmailService.sendActivationEmail(email, name, activationUrl);
@@ -71,7 +66,6 @@ class AuthController {
         });
       }
 
-      // Find user
       const user = UserModel.findByEmail(email);
 
       if (!user) {
@@ -80,7 +74,6 @@ class AuthController {
         });
       }
 
-      // Check password
       const isPasswordValid = await bcrypt.compare(password, user.password);
 
       if (!isPasswordValid) {
@@ -89,7 +82,6 @@ class AuthController {
         });
       }
 
-      // Check if user is active
       if (!user.isActive) {
         return res.status(403).json({
           error:
@@ -97,7 +89,6 @@ class AuthController {
         });
       }
 
-      // Generate auth token
       const authToken = uuidv4();
 
       UserModel.updateUser(user.id, { authToken });
@@ -120,7 +111,6 @@ class AuthController {
 
   async logout(req, res) {
     try {
-      // Clear auth token
       UserModel.updateUser(req.user.id, { authToken: null });
 
       res.json({ message: 'Logout successful' });
@@ -160,11 +150,9 @@ class AuthController {
         });
       }
 
-      // Activate user
       UserModel.activateUser(userId);
       UserModel.deleteActivationToken(token);
 
-      // Generate auth token for auto-login
       const authToken = uuidv4();
 
       UserModel.updateUser(user.id, { authToken });
@@ -212,7 +200,6 @@ class AuthController {
         await EmailService.sendPasswordResetEmail(email, user.name, resetUrl);
       }
 
-      // Always return success to prevent email enumeration
       res.json({
         message: `If an account with that email exists, we've sent a password reset link.`,
       });
@@ -252,7 +239,6 @@ class AuthController {
         });
       }
 
-      // Update password
       const hashedPassword = await bcrypt.hash(req.body.password, 12);
 
       UserModel.updateUser(user.id, { password: hashedPassword });

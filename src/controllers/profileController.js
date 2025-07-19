@@ -20,6 +20,7 @@ class ProfileController {
         },
       });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Get profile error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
@@ -49,6 +50,7 @@ class ProfileController {
         },
       });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Update name error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
@@ -87,6 +89,7 @@ class ProfileController {
         message: 'Password changed successfully',
       });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Change password error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
@@ -122,7 +125,6 @@ class ProfileController {
         });
       }
 
-      // Send notification to old email
       await EmailService.sendEmailChangeNotification(
         req.user.email,
         req.user.name,
@@ -130,12 +132,10 @@ class ProfileController {
         newEmail,
       );
 
-      // Update email
       UserModel.updateUser(req.user.id, { email: newEmail });
 
       res.json({
-        message:
-          'Email changed successfully. A notification has been sent to your old email.',
+        message: `Email changed successfully. A notification has been sent to your old email.`,
         user: {
           id: req.user.id,
           name: req.user.name,
@@ -143,6 +143,7 @@ class ProfileController {
         },
       });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Change email error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
